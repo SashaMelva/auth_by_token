@@ -52,7 +52,7 @@ func (s *Storage) GetTokenByUser(userGUID string, ctx context.Context) (*model.R
 	return &token, nil
 }
 
-func (s *Storage) UpdateTokenByUser(reefToken model.RefreshToken, ctx context.Context) error {
+func (s *Storage) UpdateTokenByUser(reefToken *model.RefreshToken, ctx context.Context) error {
 	filter := bson.D{{"userguid", reefToken.UserGUID}}
 
 	update := bson.D{

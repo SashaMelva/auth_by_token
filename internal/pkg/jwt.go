@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"math/rand"
 	"time"
 
@@ -22,7 +23,25 @@ func GenerateAccssesToken(userId string, jwtKey string) (string, error) {
 
 	return tokenString, nil
 }
+func ParseAccessToken(token string, jwtKey string) (string, error) {
+	tokenParce, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return errors.New("Неизвесный Access токен"), nil
+		}
+		return []byte(jwtKey), nil
+	})
+	if err != nil {
+		return "", err
+	}
 
+	claims, ok := tokenParce.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return "", errors.New("Не валиднай токен")
+	}
+
+	return claims["sub"].(string), nil
+}
 func GenerateRefreshToken() ([]byte, error) {
 	var b []byte
 	timeSource := rand.NewSource(time.Now().Unix())

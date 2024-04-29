@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/SashaMelva/auth_by_token/internal/config"
 	"github.com/SashaMelva/auth_by_token/internal/pkg"
@@ -75,7 +76,55 @@ func (a *App) GetTokens(userGUID string, ctx context.Context) (*model.Tokens, er
 	return &tokens, nil
 }
 
-func (a *App) RefreshToken() (*model.Tokens, error) {
+func (a *App) RefreshToken(tokens *model.TokenModel, ctx context.Context) (*model.Tokens, error) {
+	splitAccess := strings.Split(tokens.AccessToken, " ")
+	if len(splitAccess) != 2 {
+		return nil, errors.New("Неверный формат Access токена. Пример: Bearer wweqw4eq5e5eq")
+	}
+	if splitAccess[0] != "Bearer" || splitAccess[1] == "" {
+		return nil, errors.New("Access токен не валидный")
+	}
 
-	return nil, nil
+	userGUID, err := pkg.ParseAccessToken(splitAccess[1], a.Tokens.SecretJWT)
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
+
+	if !guid.IsGuid(userGUID) {
+		a.Logger.Error("Не валидный GUID")
+		return nil, errors.New("Не валидный GUID")
+	}
+
+	accessToken, err := pkg.GenerateAccssesToken(userGUID, a.Tokens.SecretJWT)
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
+
+	refToken, err := pkg.GenerateRefreshToken()
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
+
+	newTokens := model.Tokens{
+		AccessToken:  accessToken,
+		RefreshToken: refToken,
+	}
+
+	err = a.storage.UpdateTokenByUser(&model.RefreshToken{
+		RefreshToken: refToken,
+		UserGUID:     userGUID,
+	}, ctx)
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
+
+	return &newTokens, nil
 }
