@@ -2,22 +2,29 @@ package memory
 
 import (
 	"context"
-	"database/sql"
 	"sync"
 
+	"github.com/SashaMelva/auth_by_token/internal/config"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
 type Storage struct {
 	Logger       *zap.SugaredLogger
 	Ctx          context.Context
-	ConnectionDB *sql.DB
+	ClientMongo  *mongo.Client
+	DataBaseName string
 	sync.RWMutex
 }
 
-func New(connection *sql.DB, log *zap.SugaredLogger) *Storage {
+func New(client *mongo.Client, log *zap.SugaredLogger, conf *config.ConfigDB) *Storage {
 	return &Storage{
 		Logger:       log,
-		ConnectionDB: connection,
+		ClientMongo:  client,
+		DataBaseName: conf.NameDB,
 	}
 }
+
+// func (s *Storage) GetCollection() {
+// 	collection := s.ClientMongo.Database(s.DataBaseName).Collection("test")
+// }

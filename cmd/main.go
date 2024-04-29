@@ -11,6 +11,8 @@ import (
 	"github.com/SashaMelva/auth_by_token/internal/config"
 	"github.com/SashaMelva/auth_by_token/internal/logger"
 	"github.com/SashaMelva/auth_by_token/server/http"
+	"github.com/SashaMelva/auth_by_token/storage/connection"
+	"github.com/SashaMelva/auth_by_token/storage/memory"
 )
 
 func main() {
@@ -18,9 +20,9 @@ func main() {
 	config := config.New("../files/conf/")
 	log := logger.New(config.Logger, "../files/log/")
 
-	connectionDB := connection.New(config.DataBase, log)
+	clientMongo := connection.New(config.DataBase, log)
 
-	memstorage := memory.New(connectionDB.StorageDb, log)
+	memstorage := memory.New(clientMongo, log, config.DataBase)
 	app := app.New(log, memstorage)
 
 	httpServer := http.NewServer(log, app, config.HttpServer)

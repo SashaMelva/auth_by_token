@@ -11,7 +11,7 @@ type App struct {
 	Logger  *zap.SugaredLogger
 }
 
-func New(logger *zap.SugaredLogger, storage *memory.Storage, host *string) *App {
+func New(logger *zap.SugaredLogger, storage *memory.Storage) *App {
 	return &App{
 		storage: storage,
 		Logger:  logger,
