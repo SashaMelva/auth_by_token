@@ -23,7 +23,7 @@ func main() {
 	clientMongo := connection.New(config.DataBase, log)
 
 	memstorage := memory.New(clientMongo, log, config.DataBase)
-	app := app.New(log, memstorage)
+	app := app.New(log, memstorage, config.SecretJWT)
 
 	httpServer := http.NewServer(log, app, config.HttpServer)
 

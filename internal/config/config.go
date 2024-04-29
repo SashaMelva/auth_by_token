@@ -8,9 +8,15 @@ import (
 )
 
 type Config struct {
+	Tokens     *Tokens
 	HttpServer *ConfigHttpServer
 	Logger     *ConfigLogger
 	DataBase   *ConfigDB
+}
+
+type Tokens struct {
+	SecretJWT string
+	ExpressIn string
 }
 
 type ConfigHttpServer struct {
@@ -57,6 +63,11 @@ func New(pahToFile string) Config {
 		Port: viper.Get("portServerHttp").(string),
 	}
 
+	tokens := Tokens{
+		SecretJWT: viper.Get("secretJWT").(string),
+		ExpressIn: viper.Get("expressIn").(string),
+	}
+
 	level, err := zapcore.ParseLevel(viper.Get("Level").(string))
 	if err != nil {
 		configLog = ConfigLogger{zapcore.DebugLevel, viper.Get("logEncoding").(string)}
@@ -65,6 +76,7 @@ func New(pahToFile string) Config {
 	}
 
 	return Config{
+		Tokens:     &tokens,
 		HttpServer: &configHttpServer,
 		Logger:     &configLog,
 		DataBase:   &configDB,

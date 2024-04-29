@@ -3,6 +3,8 @@ module github.com/SashaMelva/auth_by_token
 go 1.22.2
 
 require (
+	github.com/beevik/guid v1.0.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
