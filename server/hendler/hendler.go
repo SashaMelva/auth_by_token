@@ -59,7 +59,7 @@ func (s *Service) RefreshHendler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Service) getToken(userGUID string, w http.ResponseWriter, req *http.Request, ctx context.Context) {
-	tokens, err := s.app.GetTokens(userGUID)
+	tokens, err := s.app.GetTokens(userGUID, ctx)
 
 	if err != nil {
 		returnError(&ErrorResponseBody{

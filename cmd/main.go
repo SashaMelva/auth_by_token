@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func main() {
 	clientMongo := connection.New(config.DataBase, log)
 
 	memstorage := memory.New(clientMongo, log, config.DataBase)
-	app := app.New(log, memstorage, config.SecretJWT)
+	app := app.New(log, memstorage, config.Tokens)
 
 	httpServer := http.NewServer(log, app, config.HttpServer)
 

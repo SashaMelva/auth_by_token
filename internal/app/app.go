@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 
 	"github.com/SashaMelva/auth_by_token/internal/config"
@@ -25,10 +26,21 @@ func New(logger *zap.SugaredLogger, storage *memory.Storage, conf *config.Tokens
 	}
 }
 
-func (a *App) GetTokens(userGUID string) (*model.Tokens, error) {
+func (a *App) GetTokens(userGUID string, ctx context.Context) (*model.Tokens, error) {
 	if !guid.IsGuid(userGUID) {
 		a.Logger.Error("Не валидный GUID")
 		return nil, errors.New("Не валидный GUID")
+	}
+
+	token, err := a.storage.GetTokenByUser(userGUID, ctx)
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
+	if token != nil {
+		a.Logger.Debug(token)
+		return nil, errors.New("В базе уже существует токен для данного пользователя")
 	}
 
 	accessToken, err := pkg.GenerateAccssesToken(userGUID, a.Tokens.SecretJWT)
@@ -50,15 +62,20 @@ func (a *App) GetTokens(userGUID string) (*model.Tokens, error) {
 		RefreshToken: refToken,
 	}
 
-	a.storage.SaveTokens(&model.TokenModel{
+	err = a.storage.SaveTokens(&model.RefreshToken{
 		UserGUID:     userGUID,
-		AccessToken:  accessToken,
 		RefreshToken: refToken,
-	})
+	}, ctx)
+
+	if err != nil {
+		a.Logger.Error(err)
+		return nil, err
+	}
 
 	return &tokens, nil
 }
 
 func (a *App) RefreshToken() (*model.Tokens, error) {
+
 	return nil, nil
 }

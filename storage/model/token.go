@@ -10,6 +10,7 @@ type TokenModel struct {
 	RefreshToken []byte `json:"refreshToken"`
 }
 
-type Token struct {
-	RefreshToken string `json:"refreshToken"`
+type RefreshToken struct {
+	UserGUID     string `json:"userGUID"`
+	RefreshToken []byte `json:"refreshToken"`
 }
